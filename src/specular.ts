@@ -253,7 +253,17 @@ export async function getBridgeTransactions(
     });
   }
 
-  return txs.reverse();
+  return txs.sort((a, b) => {
+    if (a.action.status === MessageStatus.READY) {
+      return -1
+    }
+
+    if (a.action.status === MessageStatus.PENDING && b.action.status === MessageStatus.DONE) {
+      return -1
+    }
+    
+    return 1
+  })
 }
 
 export async function finalizeDeposit(
