@@ -1,0 +1,110 @@
+[
+  {
+    "inputs": [],
+    "name": "AlreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DeadlineExpired",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DeadlineNotPassed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotYourTurn",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "challengeState",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "challengedSegmentStart",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "challengedSegmentLength",
+        "type": "uint256"
+      }
+    ],
+    "name": "Bisected",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "winner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "loser",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IChallenge.CompletionReason",
+        "name": "reason",
+        "type": "uint8"
+      }
+    ],
+    "name": "Completed",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "currentResponder",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "currentResponderTimeLeft",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "timeout",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
