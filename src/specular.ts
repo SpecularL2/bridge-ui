@@ -45,6 +45,13 @@ export type BridgeTransaction = {
   };
 };
 
+function max(a: bigint, b: bigint) {
+  if (a > b) {
+    return a
+  }
+  return b
+}
+
 export async function getDepositStatus(
   publicSpecularClient: PublicClient,
   depositHash: string,
@@ -69,6 +76,7 @@ export async function getDepositStatus(
     functionName: "number",
   })) as bigint;
 
+  console.log({ depositBlockNumber, oracleBlockNumber })
   if (depositBlockNumber <= oracleBlockNumber) {
     return MessageStatus.READY;
   }
@@ -110,6 +118,7 @@ export async function getWithdrawalStatus(
   // @ts-ignore
   const assertionBlockNumber = assertion.blockNum;
 
+  console.log({ withdrawalBlockNumber, assertionBlockNumber })
   if (withdrawalBlockNumber <= assertionBlockNumber) {
     return MessageStatus.READY;
   }
@@ -132,13 +141,15 @@ export async function getBridgeTransactions(
 
   const txs = [];
 
+  const lastHostBlockNumber = await publicHostClient.getBlockNumber()
+
   const depositBridgeLogs = await getLogs(publicHostClient, {
     address: import.meta.env.VITE_L1_BRIDGE_ADDRESS,
     event: depositBridgeEvent,
     args: {
       from: fromAddress,
     },
-    fromBlock: 0n,
+    fromBlock: max(lastHostBlockNumber - BigInt(import.meta.env.VITE_TRANSACTIONS_WINDOW), 0n),
   });
 
   for (const log of depositBridgeLogs) {
@@ -192,13 +203,15 @@ export async function getBridgeTransactions(
     });
   }
 
+  const lastSpecularBlockNumber = await publicSpecularClient.getBlockNumber()
+
   const withdrawalBridgeLogs = await getLogs(publicSpecularClient, {
     address: import.meta.env.VITE_L2_BRIDGE_ADDRESS,
     event: withdrawalBridgeEvent,
     args: {
       from: fromAddress,
     },
-    fromBlock: 0n,
+    fromBlock: max(lastSpecularBlockNumber - 500n, 0n),
   });
 
   for (const log of withdrawalBridgeLogs) {

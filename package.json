@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cp .env.local .env && ./sbin/load-l1-addresses.sh && vite",
+    "dev": "cp config/local .env && ./sbin/load-l1-addresses.sh && vite",
+    "start": "vite",
     "build": "tsc && vite build",
     "lint": "biome check ./src",
     "lint:fix": "biome check --apply ./src",

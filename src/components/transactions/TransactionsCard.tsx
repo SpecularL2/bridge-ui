@@ -35,7 +35,7 @@ function TransactionsCard() {
         getBridgeTransactions(publicHostClient, publicSpecularClient, writeContract, switchChain, address).then((txs) =>
           setTxs(txs),
         ),
-      1000,
+      2000,
     );
 
     return () => clearInterval(interval);

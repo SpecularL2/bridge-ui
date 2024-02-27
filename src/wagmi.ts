@@ -1,28 +1,29 @@
+import { sepolia } from "viem/chains";
 import { defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { type Chain } from "viem";
 
 export const hostChain = {
-  id: 1337,
-  name: "Local L1",
+  id: Number(import.meta.env.VITE_L1_CHAIN_ID),
+  name: "Sepolia",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
-    default: { http: ["http://localhost:8545"] },
+    default: { http: [import.meta.env.VITE_L1_RPC_URL] },
   },
   testnet: true,
 } as const satisfies Chain;
 
 export const specularChain = {
-  id: 13527,
-  name: "Local Specular",
+  id: Number(import.meta.env.VITE_SPECULAR_CHAIN_ID),
+  name: "Specular",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
-    default: { http: ["http://localhost:4011"] },
+    default: { http: [import.meta.env.VITE_SPECULAR_RPC_URL] },
   },
   testnet: true,
-  sourceId: 1337,
+  sourceId: import.meta.env.VITE_SPECULAR_CHAIN_ID,
 } as const satisfies Chain;
 
-export const chains: [Chain, ...Chain[]] = [hostChain, specularChain];
+export const chains: [Chain, ...Chain[]] = [sepolia, hostChain, specularChain];
 
 export const projectId = "30b22d20189ccd0e22450aeaeb4d724b";
 
