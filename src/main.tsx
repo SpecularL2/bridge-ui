@@ -12,7 +12,11 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 
-createWeb3Modal({ wagmiConfig: config, projectId, chains });
+createWeb3Modal({ 
+  wagmiConfig: config, 
+  projectId, 
+  chains,
+});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
