@@ -12,9 +12,9 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 
-createWeb3Modal({ 
-  wagmiConfig: config, 
-  projectId, 
+createWeb3Modal({
+  wagmiConfig: config,
+  projectId,
   chains,
 });
 

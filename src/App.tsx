@@ -7,7 +7,7 @@ import TransactionsCard from "./components/transactions/TransactionsCard";
 function App() {
   return (
     <div className="p-4 flex justify-center absolute inset-0 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-      <img src="../assets/specular-logo.png" className="absolute top-4 left-4 h-12"/>
+      <img src="../assets/specular-logo.png" alt="specular logo" className="absolute top-4 left-4 h-12" />
       <div className="absolute top-4 right-4">
         <w3m-button />
       </div>

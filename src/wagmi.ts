@@ -1,6 +1,6 @@
-import { sepolia } from "viem/chains";
 import { defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { type Chain } from "viem";
+import { sepolia } from "viem/chains";
 
 export const hostChain = {
   id: Number(import.meta.env.VITE_L1_CHAIN_ID),

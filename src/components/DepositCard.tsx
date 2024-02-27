@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { hostChain } from "@/wagmi";
 // import { hostChain } from "@/wagmi";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -7,7 +8,6 @@ import { useSwitchChain, useWriteContract } from "wagmi";
 import * as z from "zod";
 import abi from "../../abi/L1StandardBridge.json";
 import { InputForm, formSchema } from "./InputForm";
-import { hostChain } from "@/wagmi";
 
 function DepositCard() {
   const { data: hash, error, writeContract } = useWriteContract();

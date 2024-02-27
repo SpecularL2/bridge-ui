@@ -39,7 +39,7 @@ function TransactionsCard() {
     );
 
     return () => clearInterval(interval);
-  }, [switchChain, address]);
+  }, [switchChain, address, publicSpecularClient, publicHostClient, writeContract]);
 
   // TODO: more detail in toasts, link to explorer etc...
   useEffect(() => {
