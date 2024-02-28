@@ -10,5 +10,6 @@
 
 ## Testnet Deployment
 - config for the current testnet is at `config/sepolia`
+- run `cp config/sepolia .env`
 - `pnpm build` to generate the `dist` directory
 
