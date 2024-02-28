@@ -3,7 +3,7 @@ import { specularChain } from "@/wagmi";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { parseEther } from "viem";
-import { useSwitchChain, useWriteContract } from "wagmi";
+import { useChainId, useSwitchChain, useWriteContract } from "wagmi";
 import * as z from "zod";
 import abi from "../../abi/L2StandardBridge.sol/L2StandardBridge.json";
 import { InputForm, formSchema } from "./InputForm";
@@ -11,6 +11,7 @@ import { InputForm, formSchema } from "./InputForm";
 function WithdrawalCard() {
   const { data: hash, error, writeContract } = useWriteContract();
   const { switchChain } = useSwitchChain();
+  const chainId = useChainId()
 
   // TODO: more detail in toasts, link to explorer etc...
   useEffect(() => {
@@ -25,10 +26,14 @@ function WithdrawalCard() {
   // TODO: show pending animation
   // TODO: show better success and error notifications
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (chainId !== specularChain.id) {
+      switchChain({ chainId: specularChain.id });
+      return
+    }
+
     const amount = parseEther(values.amount.toString());
     const gasLimit = 200_000;
 
-    switchChain({ chainId: specularChain.id });
     writeContract({
       chainId: specularChain.id,
       abi,
