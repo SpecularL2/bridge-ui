@@ -11,15 +11,20 @@ import { InputForm, formSchema } from "./InputForm";
 function WithdrawalCard() {
   const { data: hash, error, writeContract } = useWriteContract();
   const { switchChain } = useSwitchChain();
-  const chainId = useChainId()
+  const chainId = useChainId();
 
   // TODO: more detail in toasts, link to explorer etc...
   useEffect(() => {
     if (hash) {
-      toast(hash);
+      toast(
+        <div>
+          <p className="font-bold">successfully initiated withdrawal</p>
+          <p className="pb-2">see transactions tab to finalize</p>
+          <a className="font-mono">{hash}</a>
+        </div>
+      );
     } else if (error) {
-      console.log({ error });
-      toast(error.message);
+      console.error({ error });
     }
   }, [hash, error]);
 
@@ -28,7 +33,7 @@ function WithdrawalCard() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (chainId !== specularChain.id) {
       switchChain({ chainId: specularChain.id });
-      return
+      return;
     }
 
     const amount = parseEther(values.amount.toString());

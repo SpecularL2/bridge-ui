@@ -10,6 +10,16 @@ import { AbiEvent } from "abitype";
 import { Address, PublicClient, encodeAbiParameters, keccak256 } from "viem";
 import { getLogs } from "viem/actions";
 
+// @ts-ignore
+interface BigInt {
+  // Convert to BigInt to string form in JSON.stringify
+  toJSON: () => string;
+}
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 export enum MessageStatus {
   DONE = "Done",
   PENDING = "Pending",
@@ -302,6 +312,27 @@ export async function finalizeDeposit(
     storageKeys: [storageSlot],
     blockNumber: oracleBlockNumber,
   });
+
+  const response = await fetch("/finalize", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      oracleBlockNumber,
+      message,
+      proof,
+    }),
+  });
+
+  const text = await response.text();
+  const status = response.status;
+  console.log({ text, status });
+
+  if (status === 200) {
+    return;
+  }
 
   await switchChain({ chainId: specularChain.id });
   writeContract({

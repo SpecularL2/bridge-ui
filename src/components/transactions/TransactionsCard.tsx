@@ -44,10 +44,14 @@ function TransactionsCard() {
   // TODO: more detail in toasts, link to explorer etc...
   useEffect(() => {
     if (hash) {
-      toast(hash);
+      toast(
+        <div>
+          <p>successfully finalized transaction</p>
+          <a>{hash}</a>
+        </div>
+      );
     } else if (error) {
-      console.log({ error });
-      toast(error.message);
+      console.error({ error });
     }
   }, [hash, error]);
 
