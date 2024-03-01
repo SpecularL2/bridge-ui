@@ -18,14 +18,14 @@ export async function onRequestPost(context: any) {
   }
 
   const specularChain = {
-    id: Number(context.env.SPECULAR_CHAIN_ID),
+    id: Number(context.env.VITE_SPECULAR_CHAIN_ID),
     name: "Specular",
     nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
     rpcUrls: {
-      default: { http: [context.env.SPECULAR_RPC_URL] },
+      default: { http: [context.env.VITE_SPECULAR_RPC_URL] },
     },
     testnet: true,
-    sourceId: context.env.SPECULAR_CHAIN_ID,
+    sourceId: context.env.VITE_SPECULAR_CHAIN_ID,
   } as const satisfies Chain;
 
   const account = privateKeyToAccount(context.env.ONBOARDING_PRIVATE_KEY) 
@@ -56,7 +56,7 @@ export async function onRequestPost(context: any) {
     account,
     chain: specularChain,
     abi: specularPortalAbi,
-    address: context.env.L2_PORTAL_ADDRESS,
+    address: context.env.VITE_L2_PORTAL_ADDRESS,
     functionName: "finalizeDepositTransaction",
     args: [oracleBlockNumber, message, proof.accountProof, proof.storageProof[0].proof],
   })
