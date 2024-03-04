@@ -46,10 +46,10 @@ function TransactionsCard() {
     if (hash) {
       toast(
         <div>
-          <p>successfully finalized transaction</p>
-          <a>{hash}</a>
+          <p className="font-bold pb-2">successfully finalized transaction</p>
+          <a className="font-mono">{hash}</a>
         </div>
-      );
+      )
     } else if (error) {
       console.error({ error });
     }

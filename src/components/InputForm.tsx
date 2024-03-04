@@ -43,7 +43,9 @@ export function InputForm({ onSubmit, description }: { onSubmit: submitFunction;
             </FormItem>
           )}
         />
-        <Button type="submit">Bridge</Button>
+        <div className="flex justify-center">
+          <Button className="w-32" type="submit">Bridge</Button>
+        </div>
       </form>
     </Form>
   );

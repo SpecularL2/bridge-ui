@@ -1,10 +1,9 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { hostChain } from "@/wagmi";
-// import { hostChain } from "@/wagmi";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { hostChain, specularChain } from "@/wagmi";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { parseEther } from "viem";
-import { useChainId, useSwitchChain, useWriteContract } from "wagmi";
+import { formatUnits, parseEther } from "viem";
+import { useAccount, useBalance, useSwitchChain, useWriteContract } from "wagmi";
 import * as z from "zod";
 import abi from "../../abi/L1StandardBridge.json";
 import { InputForm, formSchema } from "./InputForm";
@@ -12,7 +11,19 @@ import { InputForm, formSchema } from "./InputForm";
 function DepositCard() {
   const { data: hash, error, writeContract } = useWriteContract();
   const { switchChain } = useSwitchChain();
-  const chainId = useChainId();
+  const account = useAccount();
+  const chainId = account.chainId;
+  const { data: balance } = useBalance({ 
+    address: account.address,
+    chainId: hostChain.id 
+  })
+
+  let balanceString = "-"
+  if (balance) {
+    balanceString = formatUnits(balance.value, balance.decimals)
+    balanceString = balanceString.substring(0, balanceString.lastIndexOf(".") + 5)
+    balanceString += " " + balance.symbol
+  }
 
   // TODO: more detail in toasts, link to explorer etc...
   useEffect(() => {
@@ -53,11 +64,10 @@ function DepositCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Deposit</CardTitle>
-        <CardDescription>Deposit funds onto the Specular network</CardDescription>
+        <CardDescription>bridge from <b>{hostChain.name}</b> to <b>{specularChain.name}</b></CardDescription>
       </CardHeader>
       <CardContent>
-        <InputForm onSubmit={onSubmit} description={"The amount you want to bridge in ETH"} />
+        <InputForm onSubmit={onSubmit} description={"available: " + balanceString} />
       </CardContent>
     </Card>
   );
