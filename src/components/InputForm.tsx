@@ -8,18 +8,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { tokenPairs } from "@/specular";
+import { hostChain } from "@/wagmi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zeroAddress } from "viem";
 
-type submitFunction = (values: { amount: number }) => void;
+type submitFunction = (values: { amount: number, token?: string }) => void;
 
 import * as z from "zod";
 
 export const formSchema = z.object({
   amount: z.coerce.number().positive(),
+  token: z.any(),
 });
 
 export function InputForm({ onSubmit, description }: { onSubmit: submitFunction; description: string }) {
+
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,16 +58,26 @@ export function InputForm({ onSubmit, description }: { onSubmit: submitFunction;
               </FormItem>
             )}
           />
-          <Select>
-            <SelectTrigger className="rounded-s-none mt-8 w-[80px]">
-              <SelectValue defaultValue="ETH" placeholder="ETH" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ETH">ETH</SelectItem>
-              <SelectItem value="USDC">USDC</SelectItem>
-              <SelectItem value="TEST">TEST</SelectItem>
-            </SelectContent>
-          </Select>
+          <FormField
+            control={form.control}
+            name="token"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Token</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="rounded-s-none mt-8 w-[80px]">
+                      <SelectValue defaultValue={zeroAddress} placeholder={hostChain.nativeCurrency.symbol} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value={zeroAddress}>{hostChain.nativeCurrency.symbol}</SelectItem>
+                    { tokenPairs.map(t => <SelectItem value={t.specularAddress}>{t.symbol}</SelectItem>) }
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
         </div>
         <div className="flex justify-center">
           <Button className="w-32" type="submit">Bridge</Button>

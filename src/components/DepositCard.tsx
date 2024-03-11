@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { hostChain, specularChain } from "@/wagmi";
+import { tokenPairs } from "@/specular";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { formatUnits, parseEther } from "viem";
+import { formatUnits, parseEther, zeroAddress } from "viem";
 import { useAccount, useBalance, useSwitchChain, useWriteContract } from "wagmi";
 import * as z from "zod";
 import abi from "../../abi/L1StandardBridge.json";
@@ -50,6 +51,25 @@ function DepositCard() {
 
     const amount = parseEther(values.amount.toString());
     const gasLimit = 200_000;
+
+    if (values.token !== undefined && values.token !== zeroAddress) {
+      const pair = tokenPairs.find(p => p.specularAddress === values.token)
+
+      if (!pair) {
+        throw new Error("token pair not found - token list misconfigured")
+      }
+
+      writeContract({
+        chainId: hostChain.id,
+        abi,
+        address: import.meta.env.VITE_L1_BRIDGE_ADDRESS,
+        value: amount,
+        functionName: "bridgeERC20",
+        args: [pair.hostAddress, pair.specularAddress, amount, gasLimit, ""],
+      });
+      return
+    }
+
 
     writeContract({
       chainId: hostChain.id,

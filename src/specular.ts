@@ -10,6 +10,8 @@ import { AbiEvent } from "abitype";
 import { Address, PublicClient, encodeAbiParameters, keccak256 } from "viem";
 import { getLogs } from "viem/actions";
 
+import tokenList from "../specular.tokenlist.json"
+
 // @ts-ignore
 interface BigInt {
   // Convert to BigInt to string form in JSON.stringify
@@ -61,6 +63,30 @@ function max(a: bigint, b: bigint) {
   }
   return b;
 }
+
+export type TokenPair = {
+  symbol: String,
+  hostAddress: Address,
+  specularAddress: Address,
+}
+
+const specularTokens = tokenList.tokens.filter(t => t.chainId === specularChain.id)
+const hostTokens = tokenList.tokens.filter(t => t.chainId === hostChain.id)
+
+export const tokenPairs: TokenPair[] = []
+// TODO: make this less terrible
+for (let s of specularTokens) {
+  for (let h of hostTokens) {
+    if (s.name === h.name) {
+      tokenPairs.push({
+        hostAddress: h.address as Address,
+        specularAddress: s.address as Address,
+        symbol: s.symbol,
+      })
+    }
+  }
+}
+
 
 export async function getDepositStatus(
   publicSpecularClient: PublicClient,
