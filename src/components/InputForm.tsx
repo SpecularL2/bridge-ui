@@ -45,7 +45,7 @@ export function InputForm({ onSubmit, description }: { onSubmit: submitFunction;
                 <FormLabel>Amount</FormLabel>
                 <FormControl>
                   <Input
-                    className="rounded-e-none border-e-0"
+                    className="relative focus:z-10 z-0 rounded-e-none border-e-0"
                     inputMode="numeric"
                     {...field}
                     value={field.value || ""}
@@ -66,7 +66,7 @@ export function InputForm({ onSubmit, description }: { onSubmit: submitFunction;
                 <FormLabel>Token</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-s-none mt-8 w-[80px]">
+                    <SelectTrigger className="relative rounded-s-none mt-8 w-[80px]">
                       <SelectValue defaultValue={zeroAddress} placeholder={hostChain.nativeCurrency.symbol} />
                     </SelectTrigger>
                   </FormControl>
