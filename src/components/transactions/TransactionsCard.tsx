@@ -3,7 +3,7 @@ import { BridgeTransaction, getBridgeTransactions } from "@/specular";
 import { hostChain, specularChain } from "@/wagmi";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useAccount, usePublicClient, useSwitchChain, useWriteContract } from "wagmi";
+import { useAccount, usePublicClient, useSwitchChain, useWalletClient, useWriteContract } from "wagmi";
 import { columns } from "./Columns";
 import { DataTable } from "./DataTable";
 
@@ -12,12 +12,17 @@ function TransactionsCard() {
   const publicSpecularClient = usePublicClient({ chainId: specularChain.id });
   const { data: hash, error, writeContract } = useWriteContract();
 
+
   if (!publicHostClient || !publicSpecularClient) {
     throw new Error("could not get public clients");
   }
 
   const { switchChain } = useSwitchChain();
   const { address } = useAccount();
+  const walletClient = useWalletClient({ account: address });
+
+  walletClient
+
 
   const [txs, setTxs] = useState<BridgeTransaction[]>([]);
 

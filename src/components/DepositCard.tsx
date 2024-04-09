@@ -3,20 +3,20 @@ import { hostChain, specularChain } from "@/wagmi";
 import { tokenPairs } from "@/specular";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { formatUnits, parseEther, zeroAddress } from "viem";
+import { formatUnits, parseAbiItem, parseEther, parseUnits, zeroAddress } from "viem";
 import { useAccount, useBalance, useSwitchChain, useWriteContract } from "wagmi";
 import * as z from "zod";
 import abi from "../../abi/L1StandardBridge.json";
 import { InputForm, formSchema } from "./InputForm";
 
 function DepositCard() {
-  const { data: hash, error, writeContract } = useWriteContract();
+  const { data: hash, error, writeContract, writeContractAsync } = useWriteContract();
   const { switchChain } = useSwitchChain();
   const account = useAccount();
   const chainId = account.chainId;
-  const { data: balance } = useBalance({ 
+  const { data: balance } = useBalance({
     address: account.address,
-    chainId: hostChain.id 
+    chainId: hostChain.id
   })
 
   let balanceString = "-"
@@ -43,13 +43,12 @@ function DepositCard() {
 
   // TODO: show pending animation
   // TODO: show better success and error notifications
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (chainId !== hostChain.id) {
       switchChain({ chainId: hostChain.id });
       return;
     }
 
-    const amount = parseEther(values.amount.toString());
     const gasLimit = 200_000;
 
     if (values.token !== undefined && values.token !== zeroAddress) {
@@ -59,25 +58,49 @@ function DepositCard() {
         throw new Error("token pair not found - token list misconfigured")
       }
 
+      const approveTokenAbi = [
+        parseAbiItem("function approve(address spender, uint256 amount)")
+      ]
+      const amount = parseUnits(values.amount.toString(), pair.decimals)
+
+      console.log("bridging token")
+      console.log({ amount, address: pair.hostAddress })
+      await writeContractAsync({
+        chainId: hostChain.id,
+        abi: approveTokenAbi,
+        address: pair.hostAddress,
+        functionName: "approve",
+        args: [import.meta.env.VITE_L1_BRIDGE_ADDRESS, amount],
+      });
+
+      const bridgeTokenAbi = [
+        parseAbiItem("function bridgeERC20(address _localToken,address _remoteToken,uint256 _amount,uint32 _minGasLimit,bytes calldata _extraData)")
+      ];
+
+      console.log("approval done")
       writeContract({
         chainId: hostChain.id,
-        abi,
+        abi: bridgeTokenAbi,
         address: import.meta.env.VITE_L1_BRIDGE_ADDRESS,
-        value: amount,
         functionName: "bridgeERC20",
-        args: [pair.hostAddress, pair.specularAddress, amount, gasLimit, ""],
+        args: [pair.hostAddress, pair.specularAddress, amount, gasLimit, "0x"],
       });
       return
     }
 
+    const amount = parseEther(values.amount.toString());
+
+    const bridgeETHAbi = [
+      parseAbiItem("function bridgeETH(uint32 _minGasLimit, bytes calldata _extraData) payable")
+    ];
 
     writeContract({
       chainId: hostChain.id,
-      abi,
+      abi: bridgeETHAbi,
       address: import.meta.env.VITE_L1_BRIDGE_ADDRESS,
       value: amount,
       functionName: "bridgeETH",
-      args: [gasLimit, ""],
+      args: [gasLimit, "0x"],
     });
   }
 

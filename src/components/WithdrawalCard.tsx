@@ -3,7 +3,7 @@ import { hostChain, specularChain } from "@/wagmi";
 import { tokenPairs } from "@/specular";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { formatUnits, parseEther, zeroAddress } from "viem";
+import { formatUnits, parseAbiItem, parseEther, parseUnits, zeroAddress } from "viem";
 import { useAccount, useBalance, useSwitchChain, useWriteContract } from "wagmi";
 import * as z from "zod";
 import abi from "../../abi/L2StandardBridge.sol/L2StandardBridge.json";
@@ -13,9 +13,9 @@ function WithdrawalCard() {
   const { switchChain } = useSwitchChain();
   const account = useAccount();
   const chainId = account.chainId;
-  const { data: balance } = useBalance({ 
+  const { data: balance } = useBalance({
     address: account.address,
-    chainId: specularChain.id 
+    chainId: specularChain.id
   })
 
   let balanceString = "-"
@@ -48,7 +48,6 @@ function WithdrawalCard() {
       return;
     }
 
-    const amount = parseEther(values.amount.toString());
     const gasLimit = 200_000;
 
     if (values.token !== undefined && values.token !== zeroAddress) {
@@ -58,24 +57,46 @@ function WithdrawalCard() {
         throw new Error("token pair not found - token list misconfigured")
       }
 
+      const approveTokenAbi = [
+        parseAbiItem("function approve(address spender, uint256 amount)")
+      ]
+      const amount = parseUnits(values.amount.toString(), pair.decimals)
+
       writeContract({
-        chainId: hostChain.id,
-        abi,
+        chainId: specularChain.id,
+        abi: approveTokenAbi,
+        address: pair.specularAddress,
+        functionName: "approve",
+        args: [import.meta.env.VITE_L2_BRIDGE_ADDRESS, amount],
+      });
+
+      const bridgeTokenAbi = [
+        parseAbiItem("function bridgeERC20(address _localToken,address _remoteToken,uint256 _amount,uint32 _minGasLimit,bytes calldata _extraData)")
+      ];
+
+      writeContract({
+        chainId: specularChain.id,
+        abi: bridgeTokenAbi,
         address: import.meta.env.VITE_L2_BRIDGE_ADDRESS,
-        value: amount,
         functionName: "bridgeERC20",
-        args: [pair.specularAddress, pair.hostAddress, amount, gasLimit, ""],
+        args: [pair.specularAddress, pair.hostAddress, amount, gasLimit, "0x"],
       });
       return
     }
 
+    const amount = parseEther(values.amount.toString());
+
+    const bridgeETHAbi = [
+      parseAbiItem("function bridgeETH(uint32 _minGasLimit, bytes calldata _extraData) payable")
+    ];
+
     writeContract({
       chainId: specularChain.id,
-      abi,
+      abi: bridgeETHAbi,
       address: import.meta.env.VITE_L2_BRIDGE_ADDRESS,
       value: amount,
       functionName: "bridgeETH",
-      args: [gasLimit, ""],
+      args: [gasLimit, "0x"],
     });
   }
 

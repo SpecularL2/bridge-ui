@@ -1,7 +1,7 @@
-import { BridgeTransaction, MessageStatus, MessageType, finalizeDeposit, finalizeWithdrawal } from "@/specular";
+import { BridgeTransaction, MessageStatus, MessageType } from "@/specular";
 import { ColumnDef } from "@tanstack/react-table";
 import { Loader2 } from "lucide-react";
-import { Address, formatUnits } from "viem";
+import { formatUnits } from "viem";
 import { Button } from "../ui/button";
 
 export const columns: ColumnDef<BridgeTransaction>[] = [
@@ -12,22 +12,12 @@ export const columns: ColumnDef<BridgeTransaction>[] = [
       // @ts-ignore
       const { status, message, publicHostClient, publicSpecularClient, writeContract, switchChain } =
         row.getValue("action");
-      const messageHash: Address = row.getValue("messageHash");
       const type = row.getValue("type");
 
       if (status === MessageStatus.READY && type === MessageType.DEPOSIT) {
         return (
           <Button
-            onClick={async () =>
-              await finalizeDeposit(
-                messageHash,
-                message,
-                publicSpecularClient,
-                publicHostClient,
-                switchChain,
-                writeContract,
-              )
-            }
+            onClick={async () => { }}
             variant="outline"
             className="w-28"
           >
@@ -39,16 +29,7 @@ export const columns: ColumnDef<BridgeTransaction>[] = [
       if (status === MessageStatus.READY && type === MessageType.WITHDRAWAL) {
         return (
           <Button
-            onClick={async () =>
-              await finalizeWithdrawal(
-                messageHash,
-                message,
-                publicSpecularClient,
-                publicHostClient,
-                switchChain,
-                writeContract,
-              )
-            }
+            onClick={async () => { }}
             variant="outline"
             className="w-28"
           >
