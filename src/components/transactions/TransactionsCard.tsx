@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useAccount, usePublicClient, useSwitchChain, useWalletClient, useWriteContract } from "wagmi";
 import { columns } from "./Columns";
 import { DataTable } from "./DataTable";
+import { WalletClient } from "viem";
 
 function TransactionsCard() {
   const publicHostClient = usePublicClient({ chainId: hostChain.id });
@@ -19,9 +20,10 @@ function TransactionsCard() {
 
   const { switchChain } = useSwitchChain();
   const { address } = useAccount();
-  const walletClient = useWalletClient({ account: address });
-
-  walletClient
+  const { data: walletHostClient } = useWalletClient({
+    account: address,
+    chainId: hostChain.id,
+  });
 
 
   const [txs, setTxs] = useState<BridgeTransaction[]>([]);
@@ -31,19 +33,19 @@ function TransactionsCard() {
       return;
     }
 
-    getBridgeTransactions(publicHostClient, publicSpecularClient, writeContract, switchChain, address).then((txs) =>
+    getBridgeTransactions(publicSpecularClient, publicHostClient, walletHostClient as WalletClient, address).then((txs) =>
       setTxs(txs),
     );
 
-    const interval = setInterval(
-      () =>
-        getBridgeTransactions(publicHostClient, publicSpecularClient, writeContract, switchChain, address).then((txs) =>
-          setTxs(txs),
-        ),
-      2000,
-    );
-
-    return () => clearInterval(interval);
+    // const interval = setInterval(
+    //   () =>
+    //     getBridgeTransactions(publicSpecularClient, publicHostClient, walletHostClient as WalletClient, address).then((txs) =>
+    //       setTxs(txs),
+    //     ),
+    //   2000,
+    // );
+    //
+    // return () => clearInterval(interval);
   }, [switchChain, address, publicSpecularClient, publicHostClient, writeContract]);
 
   // TODO: more detail in toasts, link to explorer etc...

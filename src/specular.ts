@@ -1,17 +1,11 @@
-import specularOracleAbi from "../abi/L1Oracle.sol/L1Oracle.json";
-import hostPortalAbi from "../abi/L1Portal.sol/L1Portal.json";
-import hostBridgeAbi from "../abi/L1StandardBridge.json";
-import specularPortalAbi from "../abi/L2Portal.sol/L2Portal.json";
-import specularBridgeAbi from "../abi/L2StandardBridge.sol/L2StandardBridge.json";
-import rollupAbi from "../abi/Rollup.sol/Rollup.json";
-
 import { hostChain, specularChain } from "@/wagmi";
-import { AbiEvent, parseAbiItem } from "abitype";
-import { Address, Chain, Client, PublicClient, TransactionReceipt, Transport, encodeAbiParameters, keccak256 } from "viem";
+import { parseAbiItem } from "abitype";
+import { Address, PublicClient, TransactionReceipt, WalletClient } from "viem";
 import { getLogs } from "viem/actions";
-import { optimismSepolia, publicActionsL1, walletActionsL1, walletActionsL2 } from 'viem/op-stack';
+import { getWithdrawals, publicActionsL1, publicActionsL2, walletActionsL1 } from 'viem/op-stack';
 
 import tokenList from "../specular.tokenlist.json"
+import { Withdrawal } from "node_modules/viem/_types/chains/opStack/types/withdrawal";
 
 // @ts-ignore
 interface BigInt {
@@ -45,17 +39,12 @@ export type Message = {
 };
 
 export type BridgeTransaction = {
-  messageHash: string;
-  block: bigint;
-  amount: bigint;
-  type: MessageType;
-  action: {
-    status: MessageStatus;
-    message: Message;
-    publicHostClient: PublicClient;
-    writeContract: any;
-    switchChain: any;
-  };
+  receipt: TransactionReceipt,
+  address: Address,
+  withdrawal: Withdrawal,
+  walletHostClient: WalletClient,
+  publicHostClient: PublicClient,
+  publicSpecularClient: PublicClient,
 };
 
 function max(a: bigint, b: bigint) {
@@ -91,49 +80,86 @@ for (let s of specularTokens) {
 }
 
 export async function getBridgeTransactions(
-  publicHostClient: PublicClient,
   publicSpecularClient: PublicClient,
-  _writeContract: any,
-  _switchChain: any,
-  fromAddress: Address,
+  publicHostClient: PublicClient,
+  walletHostClient: WalletClient,
+  address: Address,
 ): Promise<BridgeTransaction[]> {
   const withdrawalEventETH = parseAbiItem("event ETHBridgeInitiated(address indexed from, address indexed to, uint256 amount, bytes extraData)")
 
+  // TODO: 
+  //  - create a type for finalizations: Withdrawal + L1 wallet client
+  //  - on click of finalize button: generate proof + finalize
+  //  - maybe: simulate finalization -> get status this way?
   const txs: BridgeTransaction[] = [];
 
   const lastSpecularBlockNumber = await publicSpecularClient.getBlockNumber();
 
+  // TODO: eventually we should use an indexer here
   const withdrawalBridgeLogs = await getLogs(publicSpecularClient, {
     address: import.meta.env.VITE_L2_BRIDGE_ADDRESS,
     event: withdrawalEventETH,
     args: {
-      from: fromAddress,
+      from: address,
     },
-    fromBlock: max(lastSpecularBlockNumber - 500n, 0n),
+    fromBlock: max(lastSpecularBlockNumber - 2000n, 0n),
   });
 
-  console.log({ withdrawalBridgeLogs })
-
   for (let log of withdrawalBridgeLogs) {
-    const receipt: TransactionReceipt = await publicSpecularClient.getTransactionReceipt({ hash: log.transactionHash });
-
-    // TODO:
-    // - use specularChain definition instead of `optimismSepolia`
-    // - add source chain and required contracts to 
+    const receipt = await publicSpecularClient.getTransactionReceipt({ hash: log.transactionHash });
 
     // @ts-ignore
     const status = await publicHostClient.extend(publicActionsL1()).getWithdrawalStatus({
       receipt,
-      targetChain: optimismSepolia,
+      l2OutputOracleAddress: import.meta.env.VITE_L1_OUTPUT_ORACLE_ADDRESS,
+      portalAddress: import.meta.env.VITE_L1_PORTAL_ADDRESS,
     })
 
-    // @ts-ignore
-    const { seconds, timestamp } = await publicHostClient.extend(publicActionsL1()).getTimeToProve({
-      receipt,
-      targetChain: optimismSepolia,
-    })
+    console.log({ status })
 
-    console.log({ status, seconds })
+    const withdrawals = getWithdrawals(receipt).map(w => {
+      return {
+        receipt,
+        address,
+        withdrawal: w,
+        walletHostClient,
+        publicHostClient,
+        publicSpecularClient,
+      }
+    })
+    txs.push(...withdrawals)
   }
   return txs
+}
+
+export async function proveAndFinalize(arg: BridgeTransaction) {
+  const { receipt, address, withdrawal, publicHostClient, publicSpecularClient, walletHostClient } = arg;
+
+  console.log({ receipt })
+
+  // @ts-ignore
+  const output = await publicHostClient.extend(publicActionsL1()).getL2Output({
+    l2BlockNumber: receipt.blockNumber,
+    l2OutputOracleAddress: import.meta.env.VITE_L1_OUTPUT_ORACLE_ADDRESS,
+  })
+
+  // @ts-ignore
+  const args = await publicSpecularClient.extend(publicActionsL2()).buildProveWithdrawal({
+    account: address,
+    output,
+    withdrawal,
+  })
+
+  // @ts-ignore
+  await walletHostClient.extend(walletActionsL1()).proveWithdrawal(args)
+
+  // @ts-ignore
+  await walletHostClient.extend(walletActionsL1()).finalizeWithdrawal({
+    account: address,
+    withdrawal,
+    portalAddress: import.meta.env.VITE_L1_PORTAL_ADDRESS,
+  })
+
+  console.log({ output })
+
 }
