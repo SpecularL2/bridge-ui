@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { formatUnits, parseAbiItem, parseEther, parseUnits, zeroAddress } from "viem";
 import { useAccount, useBalance, useSwitchChain, useWriteContract } from "wagmi";
 import * as z from "zod";
-import abi from "../../abi/L2StandardBridge.sol/L2StandardBridge.json";
 import { InputForm, formSchema } from "./InputForm";
 function WithdrawalCard() {
   const { data: hash, error, writeContract } = useWriteContract();

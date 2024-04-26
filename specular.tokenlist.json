@@ -9,25 +9,73 @@
   "timestamp": "2023-11-01T21:08:15.270Z",
   "tokens": [
     {
-      "chainId": 11155111,
-      "address": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-      "name": "Sepolia USDC",
-      "symbol": "USDC",
-      "decimals": 6,
+      "chainId": 93481,
+      "address": "0x608f0BeB4F0Ca63d96aDe766a697E35cC622DD28",
+      "name": "Test1",
+      "symbol": "TT1",
+      "decimals": 18,
       "logoURI": "https://specularl2.github.io/specular-token-list/data/TEST1/logo.svg"
     },
     {
-      "chainId": 11155420,
-      "address": "0x29FAF5905bfF9Cfcc7CF56a5ed91E0f091F8664B",
-      "name": "Sepolia USDC",
-      "symbol": "USDC",
-      "decimals": 6,
+      "chainId": 11155111,
+      "address": "0x28bEC73d847a68473EFd123EED5FedE419a31ad7",
+      "name": "Test1",
+      "symbol": "TT1",
+      "decimals": 18,
       "logoURI": "https://specularl2.github.io/specular-token-list/data/TEST1/logo.svg"
+    },
+    {
+      "chainId": 93481,
+      "address": "0x592A4be1d111AE28be1a8EA8878007833ce7F402",
+      "name": "Test2",
+      "symbol": "TT2",
+      "decimals": 18,
+      "logoURI": "https://specularl2.github.io/specular-token-list/data/TEST2/logo.svg"
+    },
+    {
+      "chainId": 11155111,
+      "address": "0xDB4E37178605172751AF128740571b26300a0765",
+      "name": "Test2",
+      "symbol": "TT2",
+      "decimals": 18,
+      "logoURI": "https://specularl2.github.io/specular-token-list/data/TEST2/logo.svg"
+    },
+    {
+      "chainId": 93481,
+      "address": "0x317913D6aA179C62232E4F71c9871221E9859956",
+      "name": "Test3",
+      "symbol": "TT3",
+      "decimals": 18,
+      "logoURI": "https://specularl2.github.io/specular-token-list/data/TEST3/logo.svg"
+    },
+    {
+      "chainId": 11155111,
+      "address": "0x1e3B4ca4Fa6907c00973B8b49C76C2CaBAb13c8d",
+      "name": "Test3",
+      "symbol": "TT3",
+      "decimals": 18,
+      "logoURI": "https://specularl2.github.io/specular-token-list/data/TEST3/logo.svg"
+    },
+    {
+      "chainId": 93481,
+      "address": "0x4d40D49cbbc18E58F4326c54E24793b84f050CD5",
+      "name": "Wrapped Ether",
+      "symbol": "WETH",
+      "decimals": 18,
+      "logoURI": "https://specularl2.github.io/specular-token-list/data/WETH/logo.svg"
+    },
+    {
+      "chainId": 11155111,
+      "address": "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
+      "name": "Wrapped Ether",
+      "symbol": "WETH",
+      "decimals": 18,
+      "logoURI": "https://specularl2.github.io/specular-token-list/data/WETH/logo.svg"
     }
   ],
   "version": {
-    "major": 0,
+    "major": 1,
     "minor": 0,
-    "patch": 0
+    "patch": 7
   }
 }
